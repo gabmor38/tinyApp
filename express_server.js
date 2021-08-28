@@ -26,6 +26,11 @@ app.get('/urls',(req, res) => { // localhost:8080/urls will show the ejs
   res.render('urls_index', templateVars);  //urls_index is the filename inside the views file folder, don't need to put the extension.
 });
 
+app.get('/urls/:shortURL',(req, res) => { 
+  const templateVars = { shortURL: req.params.shortURL, longURL: req.params.urls};
+  res.render('urls_show', templateVars);
+});
+
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
