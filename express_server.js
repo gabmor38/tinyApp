@@ -33,13 +33,24 @@ app.get('/hello', (req,res) => {
   res.send('<html><body>Hello <b>World</b></body></html>\n');
 });
 
+//Main 
 app.get('/urls',(req, res) => { // localhost:8080/urls will show the ejs
   const templateVars = { urls: urlDatabase };
   res.render('urls_index', templateVars);  //urls_index is the filename inside the views file folder, don't need to put the extension.
 });
 
-app.get('/urls/new',(req,res) => {
+//create new ShortURL
+app.get('/urls/new',(req, res) => {
   res.render('urls_new');
+});
+
+// Edit POST (creating shortURL)
+
+app.post('/urls',(req, res) => {
+  const shortURL = generateRandomString();
+  urlDatabase[shortURL] = req.body.longURL;
+  res.redirect(`/urls/${shortURL}`);
+  console.log(urlDatabase);
 });
 
 app.get('/urls/:shortURL',(req, res) => { // redirects to the LONGURL page
@@ -50,19 +61,16 @@ app.get('/urls/:shortURL',(req, res) => { // redirects to the LONGURL page
 
 app.get('/u/:shortURL', (req, res) => {  // shows user the short URL new link
   const longURL = urlDatabase[req.params.shortURL];
-  if (!urlDatabase[req.params.shortURL]) {  //if shortURL doesn not exist send status.
-    res.status(404).send("URL does not exist!");
+  if (!urlDatabase[req.params.shortURL]) {  //if shortURL does not exist send status.
+    return res.send("URL does not exist!");
   }
   res.redirect(longURL);
 });
 
-// Edit POST
-
-app.post('/urls',(req,res) => {
-  const shortURL = generateRandomString();
-  urlDatabase[shortURL] = req.body.longURL;
-  res.redirect(`/urls/${shortURL}`);
-  console.log(urlDatabase);
+//Delete POST /urls/shortURL/Delete
+app.post('/urls/:shortURL/delete', (req, res) => {
+  delete urlDatabase[req.params.shortURL];
+  res.redirect('/urls');
 });
 
 app.listen(PORT, () => {
