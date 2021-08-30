@@ -15,8 +15,8 @@ const urlDatabase = {
 };
 
 function generateRandomString() {
-  
-}
+ return (Math.random() + 1).toString(36).substring(6);
+};
 
 
 // GET
@@ -42,19 +42,28 @@ app.get('/urls/new',(req,res) => {
   res.render('urls_new');
 });
 
-app.get('/urls/:shortURL',(req, res) => {
-  const longURL = urlDatabase [req.params.shortURL].longURL;
+app.get('/urls/:shortURL',(req, res) => { // redirects to the LONGURL page
+  const longURL = urlDatabase[req.params.shortURL];
   const templateVars = { shortURL: req.params.shortURL, longURL: longURL };
   res.render('urls_show', templateVars);
 });
 
-//POST 
-
-app.post('/urls',(req,res) => {
-  console.log(req.body);
-  res.send("ok");
+app.get('/u/:shortURL', (req, res) => {  // shows user the short URL new link
+  const longURL = urlDatabase[req.params.shortURL];
+  if (!urlDatabase[req.params.shortURL]) {  //if shortURL doesn not exist send status.
+    res.status(404).send("URL does not exist!");
+  }
+  res.redirect(longURL);
 });
 
+// Edit POST
+
+app.post('/urls',(req,res) => {
+  const shortURL = generateRandomString();
+  urlDatabase[shortURL] = req.body.longURL;
+  res.redirect(`/urls/${shortURL}`);
+  console.log(urlDatabase);
+});
 
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
