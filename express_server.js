@@ -21,17 +21,6 @@ function generateRandomString() {
 
 // GET
 
-app.get('/',(req, res) => { // if they pass the home page return hello
-  res.send('Hello!');
-});
-
-app.get('/urls.json',(req, res) => {
-  res.json(urlDatabase);
-});
-
-app.get('/hello', (req,res) => {
-  res.send('<html><body>Hello <b>World</b></body></html>\n');
-});
 
 //login in and redirects to main urls page
 
@@ -53,6 +42,11 @@ app.get ('/urls', (req,res) => {
   };
   res.render("urls_index",templateVars); //urls_index is the filename inside the views file folder, don't need to put the extension.
 })
+
+app.get('/register', (req, res) => {
+  
+  res.render('urls_register');
+});
 
 //create new ShortURL
 app.get('/urls/new',(req, res) => {
