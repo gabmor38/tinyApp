@@ -4,42 +4,94 @@ const PORT = 8080; //default port 8080
 const cookieParser = require('cookie-parser');
 
 const bodyParser = require('body-parser');
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(express.urlencoded({extended: true}));
+// app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 
 
 app.set("view engine", "ejs");
-
+// 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
 
+let users = { 
+  "userRandomID": {
+    id: "userRandomID", 
+    email: "user@example.com", 
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID", 
+    email: "user2@example.com", 
+    password: "dishwasher-funk"
+  }
+};
+
+//-----HELPER FUNCTIONS=====================================//
+
 function generateRandomString() {
  return (Math.random() + 1).toString(36).substring(6);
 };
 
-// GET
+const getUserEmail = (email) => {
+  for (const id in users) {
+    const user = users[id];
+    if (user.email === email) {
+      return user;
+    }
+  }
+  return null;
+};
+
+//===========================================================//
+
+// GET Login
+ 
+app.get('/login', (req,res) => {
+
+  res.render('login');
+})
+
 
 
 //login in and redirects to main urls page
 
 app.post('/login', (req, res) => {
-  const username = req.body.username;
-  res.cookie('username', username); 
-  res.redirect('/urls');
+  const { email, password } = req.body;
+  console.log(email, password);
+  for (const id in users) {
+    const user = users[id]
+    if (user.email === email && user.password === password) {
+      res.cookie('user', id);
+      res.redirect('/urls');
+    }
+  }
+  res.send("No user found");
+  //let templateVars = {
+  // user: users[req.cookies['user']]
+  // }
+  // console.log(templateVars);
+  // //const username = req.body.username;
+  // res.cookie('user', templateVars); 
+  // //res.redirect('/urls');
 });
 
 app.post('/logout', (req, res) => {
-  res.clearCookie('username', req.body.username); 
-  res.redirect('/urls');
+  res.clearCookie('user', req.body.id); 
+  res.redirect('/register');
 });
 
 app.get ('/urls', (req,res) => {
-  const templateVars = {
-    username: req.cookies["username"],
-    urls: urlDatabase
+  let templateVars = {
+    // username: req.cookies['username'],
+    urls: urlDatabase,
+    user: users[req.cookies['user']],
+    useremail: users[req.cookies['user']].email
   };
+  console.log(req.cookies);
+  console.log(templateVars);
   res.render("urls_index",templateVars); //urls_index is the filename inside the views file folder, don't need to put the extension.
 })
 
@@ -48,10 +100,35 @@ app.get('/register', (req, res) => {
   res.render('urls_register');
 });
 
+
+app.post('/register', (req, res) => {
+  const id = 'u' + Math.floor(Math.random() *1000) + 1;
+  // const email = req.body.email;
+  // const password = req.body.password;
+  const { email, password } = req.body;
+
+  if(!email || !password) {
+    return res.status(400).send("Please enter an email or password");
+  }
+
+  const user = getUserEmail(email);
+    if(user) {
+      return res.status(400).send ("email already in use");
+    }
+
+  users[id] = { id, email, password };
+  res.cookie('user', id)
+  
+  res.redirect('/urls');
+});
+
 //create new ShortURL
 app.get('/urls/new',(req, res) => {
+  let templateVars = {
+    user: users[req.cookies['user']]
+  };
   const username = req.cookies.username;
-  res.render('urls_new',{ username });
+  res.render('urls_new', templateVars );
 });
 
 // Edit POST (creating shortURL)
@@ -60,12 +137,16 @@ app.post('/urls',(req, res) => {
   const shortURL = generateRandomString();
   urlDatabase[shortURL] = req.body.longURL;
   res.redirect(`/urls/${shortURL}`);
-  console.log(urlDatabase);
+  
 });
 
 app.get('/urls/:shortURL',(req, res) => { // redirects to the LONGURL page
   const longURL = urlDatabase[req.params.shortURL];
-  const templateVars = { shortURL: req.params.shortURL, longURL: longURL };
+  const templateVars = { 
+    shortURL: req.params.shortURL, 
+    longURL: longURL,
+    user: users[req.cookies['user']]
+  };
   res.render('urls_show', templateVars);
 });
 
