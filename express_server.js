@@ -56,33 +56,37 @@ app.get('/login', (req,res) => {
 
 
 
-//login in and redirects to main urls page
+//login in and redirects to main urls page -- After the a registration has happened.
 
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
   console.log(email, password);
-  for (const id in users) {
-    const user = users[id]
-    if (user.email === email && user.password === password) {
-      res.cookie('user', id);
-      res.redirect('/urls');
-    }
+  
+  if (!email || !password) {
+    return res.status(403).send('Email or password cannot be blank');
   }
-  res.send("No user found");
-  //let templateVars = {
-  // user: users[req.cookies['user']]
-  // }
-  // console.log(templateVars);
-  // //const username = req.body.username;
-  // res.cookie('user', templateVars); 
-  // //res.redirect('/urls');
-});
+  
+  const user = getUserEmail(email);
 
+  if (!user) {
+    return res.status(403).send('Account doesn\'t exists');
+  }
+  if (user.password !== password) {
+    return res.status(403).send('Invalid Password!');
+  }
+  if (user.email === email && user.password === password) {
+  res.cookie('user', user.id);
+  res.redirect('/urls');
+  }
+  
+});
+//==============================================================================
+//This is the logout button once you have logged in 
 app.post('/logout', (req, res) => {
   res.clearCookie('user', req.body.id); 
   res.redirect('/register');
 });
-
+//===============================================================================
 app.get ('/urls', (req,res) => {
   let templateVars = {
     // username: req.cookies['username'],
