@@ -47,14 +47,44 @@ const getUserEmail = (email) => {
 
 //===========================================================//
 
+//REGISTER ==================================================//
+
+app.get('/register', (req, res) => {
+  let templateVars = {
+    user: users['user']
+  };
+  res.render('urls_register', templateVars);
+});
+
+
+app.post('/register', (req, res) => {
+  const id = 'u' + Math.floor(Math.random() *1000) + 1;
+  // const email = req.body.email;
+  // const password = req.body.password;
+  const { email, password } = req.body;
+
+  if(!email || !password) {
+    return res.status(400).send("Please enter an email or password");
+  }
+
+  const user = getUserEmail(email);
+    if(user) {
+      return res.status(400).send ("email already in use");
+    }
+
+  users[id] = { id, email, password };
+  res.cookie('user', id)
+  
+  res.redirect('/urls');
+});
 // GET Login
  
 app.get('/login', (req,res) => {
-
-  res.render('login');
-})
-
-
+  let templateVars = {
+    user: users['user']
+  };
+  res.render('login',templateVars);
+});
 
 //login in and redirects to main urls page -- After the a registration has happened.
 
@@ -97,41 +127,15 @@ app.get ('/urls', (req,res) => {
   console.log(req.cookies);
   console.log(templateVars);
   res.render("urls_index",templateVars); //urls_index is the filename inside the views file folder, don't need to put the extension.
-})
-
-app.get('/register', (req, res) => {
-  
-  res.render('urls_register');
 });
 
-
-app.post('/register', (req, res) => {
-  const id = 'u' + Math.floor(Math.random() *1000) + 1;
-  // const email = req.body.email;
-  // const password = req.body.password;
-  const { email, password } = req.body;
-
-  if(!email || !password) {
-    return res.status(400).send("Please enter an email or password");
-  }
-
-  const user = getUserEmail(email);
-    if(user) {
-      return res.status(400).send ("email already in use");
-    }
-
-  users[id] = { id, email, password };
-  res.cookie('user', id)
-  
-  res.redirect('/urls');
-});
 
 //create new ShortURL
 app.get('/urls/new',(req, res) => {
   let templateVars = {
     user: users[req.cookies['user']]
   };
-  const username = req.cookies.username;
+  // const username = req.cookies.username;
   res.render('urls_new', templateVars );
 });
 
