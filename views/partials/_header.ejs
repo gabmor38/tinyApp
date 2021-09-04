@@ -18,7 +18,7 @@
     </div>
     <% } else { %> 
       <form method = "POST" action="/logout" style="margin-left:50%;">
-        <span> Logged in as: <%= useremail %>!</span>
+        <span> Logged in as: <%= user.email %>!</span>
         <button type="login"style="background-color: transparent; border: 1px solid black; border-radius: 5px; margin-left:5px;">Logout</button>
       </form>
     <% } %>
