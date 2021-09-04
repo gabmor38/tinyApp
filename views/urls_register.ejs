@@ -12,20 +12,25 @@
 
   <body>
 
+    <%- include('partials/_header') %>
+ 
     <main style="margin: 1em;">
-      <h3>Create TinyURL</h3>
+      <h3>Create Account</h3>
         <div class="form-group mb-2">
           <form class="form-inline" action="/register" method="POST">
           <label for="longURL">Email address:</label>
-          <input type="text" name="email"  placeholder= "Enter your email" style="width: 300px; margin: 1em">
+        </div>
+        <div>
+          <input type="text" name="email"  placeholder= "Enter your email" style="width: 300px; margin-bottom: 1em">
         </div>
         <div>
           <form class="form-inline" action="/register" method="POST">
             <label for="longURL">Password:</label>
-            <input type="text" name="password" style="width: 300px; margin: 1em">
           </div> 
           <div>
-            <p>Don't have an account? Create</p>
+            <input type="text" name="password"  placeholder = "password" style="width: 300px; margin-bottom: 1em">
+          </div>
+          <div>
             <button type="submit" class="btn btn-primary">Register</button>
           </div>
         
