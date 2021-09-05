@@ -12,7 +12,8 @@ app.use(express.urlencoded({extended: true}));
 app.use(cookieParser());
 
 const bcrypt = require('bcrypt');
-// const hashedPassword = bcrypt.hashSync(req.body.password, 10);
+
+
 
 app.set("view engine", "ejs");
 // 
@@ -26,14 +27,18 @@ let users = {
   "userRandomID": {
     id: "userRandomID", 
     email: "user@example.com", 
-    password: "purple-monkey-dinosaur"
+    password: "$2b$10$g31dC72oWJW/pVr4i37b3eBh1OrAIhUexlGemwsOXyLuItsQavgYW" // 'purple-monkey-dinosaur'
   },
  "user2RandomID": {
     id: "user2RandomID", 
     email: "user2@example.com", 
-    password: "dishwasher-funk"
+    password: "$2b$10$kEcm00J.pVKwQnI.oK0ESeGuOhAZVECzIhrtQ5BCdSKCKbWlOG8aa" // 'dishwasher-funk'
   }
 };
+
+// console.log(bcrypt.hashSync('purple-monkey-dinosaur', 10));
+// console.log(bcrypt.hashSync('dishwasher-funk', 10));
+
 
 //-----HELPER FUNCTIONS=====================================//
 
@@ -52,6 +57,8 @@ const getUserEmail = (email) => {
   }
   return null;
 };
+
+const saltRounds = 10;
 
 //returns URLS where UserID equal to the id of current logged-in user
 const urlsForUser = (id) => {
@@ -85,7 +92,7 @@ app.post('/register', (req, res) => {
   // const email = req.body.email;
   // const password = req.body.password;
   const { email, password } = req.body;
-
+  const hashedPassword = bcrypt.hashSync(password, saltRounds);
   if(!email || !password) {
     return res.status(400).send("Please enter an email or password");
   }
@@ -95,7 +102,7 @@ app.post('/register', (req, res) => {
       return res.status(400).send ("email already in use");
     }
 
-  users[id] = { id, email: req.body.email, password: bcrypt.hashSync(req.body.password, 10) };
+  users[id] = { id, email: email, password: hashedPassword};
   res.cookie('user_id', id)
   
   res.redirect('/urls');
@@ -120,14 +127,14 @@ app.post('/login', (req, res) => {
   }
   
   const user = getUserEmail(email);
-
+  
   if (!user) {
     return res.status(403).send('Account doesn\'t exists');
   }
-  if (user.password !== password) {
+  if (!bcrypt.compareSync(password, user.password)) {
     return res.status(403).send('Invalid Password!');
   }
-  if (user.email === email && user.password === password) {
+  if (user.email === email && bcrypt.compareSync(password, user.password)) {
   res.cookie('user_id', user.id);
   res.redirect('/urls');
   }
