@@ -1,13 +1,18 @@
 const express = require('express');
 const app = express();
 const PORT = 8080; //default port 8080
+
 const cookieParser = require('cookie-parser');
+
+
 
 const bodyParser = require('body-parser');
 app.use(express.urlencoded({extended: true}));
 // app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 
+const bcrypt = require('bcrypt');
+// const hashedPassword = bcrypt.hashSync(req.body.password, 10);
 
 app.set("view engine", "ejs");
 // 
@@ -64,7 +69,7 @@ const urlsForUser = (id) => {
 
 //===========================================================//
 
-//REGISTER ==================================================//
+// GET====REGISTER ====================================//
 
 app.get('/register', (req, res) => {
   let templateVars = {
@@ -73,6 +78,7 @@ app.get('/register', (req, res) => {
   res.render('urls_register', templateVars);
 });
 
+//POST=====REGISTER==================//
 
 app.post('/register', (req, res) => {
   const id = 'u' + Math.floor(Math.random() *1000) + 1;
@@ -89,7 +95,7 @@ app.post('/register', (req, res) => {
       return res.status(400).send ("email already in use");
     }
 
-  users[id] = { id, email, password };
+  users[id] = { id, email: req.body.email, password: bcrypt.hashSync(req.body.password, 10) };
   res.cookie('user_id', id)
   
   res.redirect('/urls');
