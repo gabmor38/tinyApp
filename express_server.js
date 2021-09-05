@@ -4,6 +4,7 @@ const PORT = 8080; //default port 8080
 
 const cookieParser = require('cookie-parser');
 
+const cookieSession = require('cookie-session');
 
 
 const bodyParser = require('body-parser');
