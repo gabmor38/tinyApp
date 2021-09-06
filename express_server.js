@@ -5,6 +5,10 @@ const PORT = 8080; //default port 8080
 const cookieParser = require('cookie-parser');
 
 const cookieSession = require('cookie-session');
+app.use(cookieSession({
+  name: 'session',
+  keys: ['key1', 'key2']
+}))
 
 
 const bodyParser = require('body-parser');
@@ -81,7 +85,7 @@ const urlsForUser = (id) => {
 
 app.get('/register', (req, res) => {
   let templateVars = {
-    user: users['user_id']
+    user: users[req.session.user_id]
   };
   res.render('urls_register', templateVars);
 });
@@ -104,7 +108,9 @@ app.post('/register', (req, res) => {
     }
 
   users[id] = { id, email: email, password: hashedPassword};
-  res.cookie('user_id', id)
+  
+  req.session.user_id = id;
+  //res.cookie('user_id', id)
   
   res.redirect('/urls');
 });
@@ -112,7 +118,7 @@ app.post('/register', (req, res) => {
  
 app.get('/login', (req,res) => {
   let templateVars = {
-    user: users['user_id']
+    user: users[req.session.user_id]
   };
   res.render('login',templateVars);
 });
@@ -136,7 +142,8 @@ app.post('/login', (req, res) => {
     return res.status(403).send('Invalid Password!');
   }
   if (user.email === email && bcrypt.compareSync(password, user.password)) {
-  res.cookie('user_id', user.id);
+  req.session['user_id'] = user.id
+  //res.cookie('user_id', user.id);
   res.redirect('/urls');
   }
   
@@ -144,14 +151,16 @@ app.post('/login', (req, res) => {
 //==============================================================================
 //This is the logout button once you have logged in 
 app.post('/logout', (req, res) => {
-  res.clearCookie('user_id', req.body.id); 
+  req.session.user_id = null;
+  //res.clearCookie('user_id', req.body.id); 
   res.redirect('/register');
 });
 //INDEX PAGE==CLIENT=============================================================================
 
 //GET
 app.get ('/urls', (req,res) => {
-  const userID = req.cookies['user_id'];
+  //const userID = req.cookies['user_id'];
+  const userID = req.session['user_id']
   const templateVars = {
     urls: urlsForUser(userID, urlDatabase),
     user: users[userID],
@@ -170,10 +179,11 @@ app.get ('/urls', (req,res) => {
 //create new ShortURL======URLS_SHOW PAGE============
 app.get('/urls/new',(req, res) => {
   const templateVars = {
-    user: users[req.cookies['user_id']]
+    user: users[req.session['user_id']]
+    //user: users[req.cookies['user_id']]
   };
   
-  if(!req.cookies['user_id']) {
+  if(!req.session['user_id']) {
     res.redirect('/login');
   } else {
     res.render('urls_new', templateVars );
@@ -186,7 +196,8 @@ app.get('/urls/new',(req, res) => {
 app.post('/urls',(req, res) => {
     const shortURL = generateRandomString();
     const longURL = req.body.longURL;
-    const userID = req.cookies['user_id'];
+    const userID = req.session['user_id'];
+    //const userID = req.cookies['user_id'];
     urlDatabase[shortURL] = { longURL, userID };
     res.redirect(`/urls/${shortURL}`);
   
@@ -198,7 +209,8 @@ app.post('/urls',(req, res) => {
 //======GET===== // SHOWS the new LONGURL==========
 app.get('/urls/:shortURL',(req, res) => { 
   const shortURL = req.params.shortURL;
-  const user = users[req.cookies['user_id']];
+  const user = users[req.session['user_id']];
+  //const user = users[req.cookies['user_id']];
   const longURL = urlDatabase[req.params.shortURL].longURL;
   const templateVars = { 
     user,
@@ -207,7 +219,7 @@ app.get('/urls/:shortURL',(req, res) => {
   };
   if (!urlDatabase[shortURL]) {
     res.status(404).send('this shortURL does not exist');
-  } else if (!user|| !urlDatabase[shortURL]) {
+  } else if (!user || !urlDatabase[shortURL]) {
     
     res.status(401).send('Please login');
   } else {
@@ -226,7 +238,8 @@ app.get('/u/:shortURL', (req, res) => {  // shows user the short URL new link
 //Edit POST /ulrs/:shortURL   === updates the longURL
 app.post('/urls/:shortURL', (req,res) => {
   const shortURL = req.params.shortURL;
-  const userID = req.cookies['user_id'];
+  const userID = req.session['user_id'];
+  //const userID = req.cookies['user_id'];
   
   if (userID === urlDatabase[shortURL].userID) {
     urlDatabase[shortURL].longURL = req.body.longURL;  //req.body is the object longURL:
