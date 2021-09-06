@@ -49,9 +49,9 @@ const generateRandomString = () => {
 };
 
 //fetches user by email
-const getUserEmail = (email) => {
-  for (const id in users) {
-    const user = users[id];
+const getUserEmail = (email, database) => {
+  for (const id in database) {
+    const user = database[id];
     if (user.email === email) {
       return user;
     }
@@ -124,7 +124,7 @@ app.post('/login', (req, res) => {
     return res.status(403).send('Email or password cannot be blank');
   }
   
-  const user = getUserEmail(email);
+  const user = getUserEmail(email,users);
   
   if (!user) {
     return res.status(403).send('Account doesn\'t exists');
