@@ -79,7 +79,12 @@ const urlsForUser = (id) => {
 // GET====REGISTER ====================================//
 
 app.get('/register', (req, res) => {
-  let templateVars = {
+  
+  if (req.session.user_id) {
+    return res.redirect('/urls');
+  }
+
+  const templateVars = {
     user: users[req.session.user_id]
   };
   res.render('urls_register', templateVars);
@@ -97,6 +102,7 @@ app.post('/register', (req, res) => {
   }
 
   const user = getUserEmail(email);
+  console.log(user);
   if (user) {
     return res.status(400).send("email already in use");
   }
@@ -151,7 +157,7 @@ app.get('/urls', (req,res) => {
   const userID = req.session['user_id'];
   const templateVars = {
     urls: urlsForUser(userID, urlDatabase),
-    user: users[userID],
+    user: users[userID]
   };
   if (!userID) {
     res.status(401).send('Please login');
