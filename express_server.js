@@ -49,15 +49,6 @@ const generateRandomString = () => {
   return (Math.random() + 1).toString(36).substring(6);
 };
 
-//fetches user by email
-// const getUserEmail = (email) => {
-//   for (const id in users) {
-//     if (users[id].email === email) {
-//       return users[id];
-//     }
-//   }
-//   return null;
-// };
 
 const saltRounds = 10;
 
