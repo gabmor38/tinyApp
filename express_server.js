@@ -2,8 +2,6 @@ const express = require('express');
 const app = express();
 const PORT = 8080; //default port 8080
 
-//const cookieParser = require('cookie-parser');
-
 const cookieSession = require('cookie-session');
 app.use(cookieSession({
   name: 'session',
@@ -13,7 +11,6 @@ app.use(cookieSession({
 
 const bodyParser = require('body-parser');
 app.use(express.urlencoded({extended: true}));
-// app.use(cookieParser());
 
 const bcrypt = require('bcrypt');
 
@@ -65,8 +62,6 @@ const urlsForUser = (id) => {
   return userURLS;
 };
 
-//===========================================================//
-
 // GET====REGISTER ====================================//
 
 app.get('/register', (req, res) => {
@@ -113,7 +108,7 @@ app.get('/login', (req,res) => {
   res.render('login',templateVars);
 });
 
-//login in and redirects to main urls page -- After the a registration has happened.
+//login in and redirects to main urls page -- After the registration has happened.
 
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
