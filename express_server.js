@@ -49,11 +49,10 @@ const generateRandomString = () => {
 };
 
 //fetches user by email
-const getUserEmail = (email, database) => {
-  for (const id in database) {
-    const user = database[id];
-    if (user.email === email) {
-      return user;
+const getUserEmail = (email) => {
+  for (const id in users) {
+    if (users[id].email === email) {
+      return users[id];
     }
   }
   return null;
@@ -93,23 +92,25 @@ app.get('/register', (req, res) => {
 //POST=====REGISTER==================//
 
 app.post('/register', (req, res) => {
-  const id = 'u' + Math.floor(Math.random() * 1000) + 1;
-  const { email, password } = req.body;
-  const hashedPassword = bcrypt.hashSync(password, saltRounds);
-
-  if (!email || !password) {
+  //1. I am checking whether the email or password is empty
+  if (!req.body.email || !req.body.password) {
     return res.status(400).send("Please enter an email or password");
   }
-
-  const user = getUserEmail(email);
-  console.log(user);
+  //2. To verify whether the Email is already taken or not
+  const user = getUserEmail(req.body.email);
+  console.log("this is the user",user);
+  //If the email is already taken
   if (user) {
     return res.status(400).send("email already in use");
+  } else { //Email has not been taken. So we can register the new user.
+    const id = 'u' + Math.floor(Math.random() * 1000) + 1;
+    const { email, password } = req.body;
+    const hashedPassword = bcrypt.hashSync(password, saltRounds);
+    users[id] = { id, email: email, password: hashedPassword};
+    req.session['user_id'] = id
+    res.redirect('/urls');
   }
-  users[id] = { id, email: email, password: hashedPassword};
-  req.session.user_id = id;
   
-  res.redirect('/urls');
 });
 // GET Login
  
