@@ -42,6 +42,7 @@ let users = {
 
 
 //-----HELPER FUNCTIONS=====================================//
+const { getUserEmail } = require('./helpers');
 
 //creates a random string
 const generateRandomString = () => {
@@ -49,14 +50,14 @@ const generateRandomString = () => {
 };
 
 //fetches user by email
-const getUserEmail = (email) => {
-  for (const id in users) {
-    if (users[id].email === email) {
-      return users[id];
-    }
-  }
-  return null;
-};
+// const getUserEmail = (email) => {
+//   for (const id in users) {
+//     if (users[id].email === email) {
+//       return users[id];
+//     }
+//   }
+//   return null;
+// };
 
 const saltRounds = 10;
 
@@ -97,7 +98,7 @@ app.post('/register', (req, res) => {
     return res.status(400).send("Please enter an email or password");
   }
   //2. To verify whether the Email is already taken or not
-  const user = getUserEmail(req.body.email);
+  const user = getUserEmail(req.body.email,users);
   console.log("this is the user",user);
   //If the email is already taken
   if (user) {
