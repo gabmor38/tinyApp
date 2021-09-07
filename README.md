@@ -26,19 +26,19 @@ TinyApp is a full stack web application built with Node and Express that allows 
 
 ## How to use TinyApp
 
-In order to create, edit or view shortUrls a user must first register or logged in.
+In order to create, edit or view shortUrls a user must first, register or login.
 
 ### Creating a new link
 
-- Select the "Create New URL" in the navigation bar and in the "Enter a URL" field add in the url you want to shorten.
+- Select the "Create New URL" in the navigation bar, in the "Enter a URL" field, add in the url you want to shorten.
 
 To view newly created or existing Urls select "My urls" in the navigation bar.
 
 ### Edit or Delete Urls
 
-- Select "My urls" to edit or delete shorten URLS. 
+- Select "My urls" to edit or delete existing shorten URLS. 
 
-Select the Edit button to update the link for the shortUrl. It will only modify the long link and not the shortone.
+Select the Edit button to update the link for the shortUrl, this  will only modify the long link and not the shortUrl.
 
-If you want to remove a link completely off the list simply select "Delete".
+If you want to remove a link, select "Delete".
 
